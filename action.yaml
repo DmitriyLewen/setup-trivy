@@ -48,9 +48,8 @@ runs:
       uses: actions/checkout@v4
       with:
         sparse-checkout: |
-          contrib/install.sh
+          install.sh
         sparse-checkout-cone-mode: false
-        path: trivy
         fetch-depth: 1
 
     - name: Install Trivy
