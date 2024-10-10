@@ -19,11 +19,16 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Checkout Trivy
+      uses: actions/checkout@v4
+      with:
+        repository: aquasecurity/trivy
+        path: trivy
+        fetch-depth: 1
+
     - name: Install Trivy
       shell: bash
-      env:
-        GH_TOKEN: ${{ github.token }}
       run: |
         TRIVY_PATH="${{ inputs.path }}/trivy-dir"
-        gh api -H "Accept: application/vnd.github.raw" /repos/aquasecurity/trivy/contents/contrib/install.sh | bash -s -- -b $TRIVY_PATH ${{ inputs.version }}
+        cat trivy/contrib/install.sh | bash -s -- -b $TRIVY_PATH ${{ inputs.version }}
         echo $TRIVY_PATH >> $GITHUB_PATH
