@@ -26,4 +26,4 @@ runs:
       run: |
         TRIVY_PATH="${{ inputs.path }}/trivy-dir"
         gh api -H "Accept: application/vnd.github.raw" /repos/aquasecurity/trivy/contents/contrib/install.sh | bash -s -- -b $TRIVY_PATH ${{ inputs.version }}
-        echo TRIVY_PATH >> $GITHUB_PATH
+        echo $TRIVY_PATH >> $GITHUB_PATH
