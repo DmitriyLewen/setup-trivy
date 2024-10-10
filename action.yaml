@@ -19,7 +19,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Checkout Trivy
+    - name: Checkout Trivy repo
       uses: actions/checkout@v4
       with:
         repository: aquasecurity/trivy
@@ -32,3 +32,7 @@ runs:
         TRIVY_PATH="${{ inputs.path }}/trivy-dir"
         cat trivy/contrib/install.sh | bash -s -- -b $TRIVY_PATH ${{ inputs.version }}
         echo $TRIVY_PATH >> $GITHUB_PATH
+
+    - name: Clean up Trivy repo
+      shell: bash
+      run: rm -r trivy
