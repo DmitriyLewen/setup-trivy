@@ -45,7 +45,7 @@ runs:
       shell: bash
       run: |
         echo "installing Trivy binary"
-        bash trivy/contrib/install.sh -- -b ${{ steps.binary-dir.outputs.dir }} ${{ inputs.version }}
+        bash trivy/contrib/install.sh -s -- -b ${{ steps.binary-dir.outputs.dir }} ${{ inputs.version }}
         echo $TRIVY_PATH >> $GITHUB_PATH  
 
     - name: Clean up Trivy repo
