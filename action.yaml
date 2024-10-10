@@ -58,16 +58,6 @@ runs:
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        ls -ahl
-        ls -ahl ./trivy
-        ls -ahl ./trivy/contrib
         echo "installing Trivy binary"
         bash ./trivy/contrib/install.sh -b ${{ steps.binary-dir.outputs.dir }} ${{ steps.version.outputs.version }}
-        echo $TRIVY_PATH >> $GITHUB_PATH  
-
-    - name: Clean up Trivy repo
-      if: steps.cache.outputs.cache-hit != 'true'
-      shell: bash
-      run: |
-        echo "removing Trivy repository"
-        rm -r trivy
+        echo ${{ steps.binary-dir.outputs.dir }} >> $GITHUB_PATH
