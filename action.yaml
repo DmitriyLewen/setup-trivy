@@ -24,6 +24,22 @@ runs:
       shell: bash
       run: echo "dir=${{ inputs.path }}/trivy-dir" >> $GITHUB_OUTPUT
 
+    ## Don't cache `latest` version
+    - name: Check the version for caching
+      if: ${{ inputs.cache == 'true' && inputs.version == 'latest' }}
+      shell: bash
+      run: |
+        echo "'setup-trivy' doesn't currently support caching the `latest` version"
+        echo "read https://github.com/aquasecurity/setup-trivy?tab=readme-ov-file#caching for more details"
+
+    - name: Restore Trivy binary from cache
+      if: ${{ inputs.cache == 'true' && inputs.version == 'latest' }}
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.binary-dir.outputs.dir }}
+        key: trivy-binary-${{ steps.version.outputs.version }}-${{ runner.os }}-${{ runner.arch }}
+
     - name: Checkout install script
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
@@ -35,30 +51,14 @@ runs:
         path: trivy
         fetch-depth: 1
 
-    - name: Binary version
-      id: version
-      shell: bash
-      run: |
-        if [ "${{ inputs.version }}" == "latest" ]; then
-          cd trivy
-          latest_tag=$(git describe --tags --abbrev=0)
-          echo "version=$latest_tag" >> $GITHUB_OUTPUT
-        else
-          echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
-        fi
-
-    - name: Restore Trivy binary from cache
-      if: ${{ inputs.cache == 'true' }}
-      id: cache
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.binary-dir.outputs.dir }}
-        key: trivy-binary-${{ steps.version.outputs.version }}-${{ runner.os }}-${{ runner.arch }}
-
     - name: Install Trivy
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
         echo "installing Trivy binary"
         bash ./trivy/contrib/install.sh -b ${{ steps.binary-dir.outputs.dir }} ${{ steps.version.outputs.version }}
-        echo ${{ steps.binary-dir.outputs.dir }} >> $GITHUB_PATH
+
+    ## Add the Trivy binary, retrieved from cache or installed by a script, to $GITHUB_PATH
+    - name: Add Trivy binary to $GITHUB_PATH
+      shell: bash
+      run: echo ${{ steps.binary-dir.outputs.dir }} >> $GITHUB_PATH
