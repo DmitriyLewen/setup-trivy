@@ -33,7 +33,7 @@ runs:
         echo "read https://github.com/aquasecurity/setup-trivy?tab=readme-ov-file#caching for more details"
 
     - name: Restore Trivy binary from cache
-      if: ${{ inputs.cache == 'true' && inputs.version == 'latest' }}
+      if: ${{ inputs.cache == 'true' && inputs.version != 'latest' }}
       id: cache
       uses: actions/cache@v4
       with:
