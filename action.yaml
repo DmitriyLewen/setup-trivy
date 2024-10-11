@@ -8,9 +8,9 @@ inputs:
     required: false
     default: 'latest'
   path:
-    description: 'Path in runner to install Trivy ("$RUNNER_TOOL_CACHE/trivy-bin" by default).'
+    description: 'Path in runner to install Trivy. Trivy will be installed in "trivy-bin" dir ("$RUNNER_TOOL_CACHE/trivy-bin" by default)'
     required: false
-    default: '$RUNNER_TOOL_CACHE/trivy-bin'
+    default: ${{ runner.tool_cache }}
   cache:
     description: 'Used to specify whether caching is needed. Set to false, if you would like to disable caching.'
     required: false
@@ -19,6 +19,19 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Binary dir
+      id: binary-dir
+      shell: bash
+      ## We should replace `$HOME` with `~` for windows runners
+      ## cf. https://github.com/actions/cache?tab=readme-ov-file#windows-environment-variables
+      run: |
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          dir=$(echo "${{ inputs.path }}" | sed "s|\$HOME|~|g") 
+          echo "dir=$dir/trivy-bin" >> $GITHUB_OUTPUT
+        else
+          echo "dir=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
+        fi
+
     ## Don't cache `latest` version
     - name: Check the version for caching
       if: ${{ inputs.cache == 'true' && inputs.version == 'latest' }}
@@ -32,7 +45,7 @@ runs:
       id: cache
       uses: actions/cache@v4
       with:
-        path: ${{ inputs.path }}
+        path: ${{ steps.binary-dir.outputs.dir }}
         key: trivy-binary-${{ inputs.version }}-${{ runner.os }}-${{ runner.arch }}
 
     - name: Checkout install script
@@ -51,9 +64,9 @@ runs:
       shell: bash
       run: |
         echo "installing Trivy binary"
-        bash ./trivy/contrib/install.sh -b ${{ inputs.path }} ${{ inputs.version }}
+        bash ./trivy/contrib/install.sh -b ${{ steps.binary-dir.outputs.dir }} ${{ inputs.version }}
 
     ## Add the Trivy binary, retrieved from cache or installed by a script, to $GITHUB_PATH
     - name: Add Trivy binary to $GITHUB_PATH
       shell: bash
-      run: echo ${{ inputs.path }} >> $GITHUB_PATH
+      run: echo ${{ steps.binary-dir.outputs.dir }} >> $GITHUB_PATH
