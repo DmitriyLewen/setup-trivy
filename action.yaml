@@ -10,7 +10,7 @@ inputs:
   path:
     description: 'Path in runner to install Trivy. Trivy will be installed in "trivy-bin" dir ("$RUNNER_TOOL_CACHE/trivy-bin" by default)'
     required: false
-    default: '$HOME/.local/bin'
+    default: '$HOME/.local/bin/trivy-bin'
   cache:
     description: 'Used to specify whether caching is needed. Set to false, if you would like to disable caching.'
     required: false
@@ -45,7 +45,7 @@ runs:
       id: cache
       uses: actions/cache@v4
       with:
-        path: ${{ steps.binary-dir.outputs.dir }}
+        path: ${{ inputs.path }}
         key: trivy-binary-${{ inputs.version }}-${{ runner.os }}-${{ runner.arch }}
 
     - name: Checkout install script
@@ -64,9 +64,9 @@ runs:
       shell: bash
       run: |
         echo "installing Trivy binary"
-        bash ./trivy/contrib/install.sh -b ${{ steps.binary-dir.outputs.dir }} ${{ inputs.version }}
+        bash ./trivy/contrib/install.sh -b ${{ inputs.path }} ${{ inputs.version }}
 
     ## Add the Trivy binary, retrieved from cache or installed by a script, to $GITHUB_PATH
     - name: Add Trivy binary to $GITHUB_PATH
       shell: bash
-      run: echo ${{ steps.binary-dir.outputs.dir }} >> $GITHUB_PATH
+      run: echo ${{ inputs.path }} >> $GITHUB_PATH
