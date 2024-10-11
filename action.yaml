@@ -29,7 +29,7 @@ runs:
         if [ "${{ runner.os }}" == "Windows" ]; then
           echo "dir_for_cache=$(echo "${{ inputs.path }}" | sed 's|^/c|C:/|' | sed 's|/|\\|g')\\trivy-bins" >> $GITHUB_OUTPUT
         else
-          echo "dir_for_cache=${dir_for_bash}" >> $GITHUB_OUTPUT
+          echo "dir_for_cache=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
         fi
 
     ## Don't cache `latest` version
