@@ -26,10 +26,11 @@ runs:
       ## cf. https://github.com/actions/cache?tab=readme-ov-file#windows-environment-variables
       run: |
         if [ "${{ runner.os }}" == "Windows" ]; then
-          dir=$(echo "${{ inputs.path }}" | sed "s|\$HOME|~|g") 
-          echo "dir=$dir/trivy-bin" >> $GITHUB_OUTPUT
+          echo "dir_for_bash=$(echo "${{ inputs.path }}" | sed 's|^\([A-Z]\):|/\L\1|' | sed 's|\\|/|g')/trivy-bins" >> $GITHUB_OUTPUT
+          echo "dir_for_cache==$(echo "${{ inputs.path }}" | sed 's|^/|C:/|' | sed 's|/|\\|g')\\trivy-bins" >> $GITHUB_OUTPUT
         else
-          echo "dir=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
+          echo "dir_for_bash=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
+          echo "dir_for_cache=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
         fi
 
     ## Don't cache `latest` version
@@ -45,7 +46,7 @@ runs:
       id: cache
       uses: actions/cache@v4
       with:
-        path: ${{ inputs.path }}
+        path: ${{ steps.binary-dir.outputs.dir_for_cache }}
         key: trivy-binary-${{ inputs.version }}-${{ runner.os }}-${{ runner.arch }}
 
     - name: Checkout install script
@@ -64,9 +65,9 @@ runs:
       shell: bash
       run: |
         echo "installing Trivy binary"
-        bash ./trivy/contrib/install.sh -b ${{ inputs.path }} ${{ inputs.version }}
+        bash ./trivy/contrib/install.sh -b ${{ steps.binary-dir.outputs.dir_for_bash }} ${{ inputs.version }}
 
     ## Add the Trivy binary, retrieved from cache or installed by a script, to $GITHUB_PATH
     - name: Add Trivy binary to $GITHUB_PATH
       shell: bash
-      run: echo ${{ inputs.path }} >> $GITHUB_PATH
+      run: echo ${{ steps.binary-dir.outputs.dir_for_cache }} >> $GITHUB_PATH
