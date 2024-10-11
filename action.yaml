@@ -24,11 +24,23 @@ runs:
       shell: bash
       run: echo "dir=${{ inputs.path }}/trivy-dir" >> $GITHUB_OUTPUT
 
+    - name: Checkout install script
+      if: steps.cache.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: aquasecurity/trivy
+        sparse-checkout: |
+          contrib/install.sh
+        sparse-checkout-cone-mode: false
+        path: trivy
+        fetch-depth: 1
+
     - name: Binary version
       id: version
       shell: bash
       run: |
         if [ "${{ inputs.version }}" == "latest" ]; then
+          cd trivy
           latest_tag=$(git describe --tags --abbrev=0)
           echo "version=$latest_tag" >> $GITHUB_OUTPUT
         else
@@ -42,17 +54,6 @@ runs:
       with:
         path: ${{ steps.binary-dir.outputs.dir }}
         key: trivy-binary-${{ steps.version.outputs.version }}-${{ runner.os }}-${{ runner.arch }}
-
-    - name: Checkout install script
-      if: steps.cache.outputs.cache-hit != 'true'
-      uses: actions/checkout@v4
-      with:
-        repository: aquasecurity/trivy
-        sparse-checkout: |
-          contrib/install.sh
-        sparse-checkout-cone-mode: false
-        path: trivy
-        fetch-depth: 1
 
     - name: Install Trivy
       if: steps.cache.outputs.cache-hit != 'true'
