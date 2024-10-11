@@ -22,15 +22,14 @@ runs:
     - name: Binary dir
       id: binary-dir
       shell: bash
-      ## We should replace `$HOME` with `~` for windows runners
-      ## cf. https://github.com/actions/cache?tab=readme-ov-file#windows-environment-variables
+      ## action/cache works bad with absolute paths
+      ## So we need to convert unix format into windows format to use it in action/cache
       run: |
+        echo "dir_for_bash=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
         if [ "${{ runner.os }}" == "Windows" ]; then
-          echo "dir_for_bash=$(echo "${{ inputs.path }}" | sed 's|^\([A-Z]\):|/\L\1|' | sed 's|\\|/|g')/trivy-bins" >> $GITHUB_OUTPUT
-          echo "dir_for_cache==$(echo "${{ inputs.path }}" | sed 's|^/|C:/|' | sed 's|/|\\|g')\\trivy-bins" >> $GITHUB_OUTPUT
+          echo "dir_for_cache=$(echo "${{ inputs.path }}" | sed 's|^/c|C:/|' | sed 's|/|\\|g')\\trivy-bins" >> $GITHUB_OUTPUT
         else
-          echo "dir_for_bash=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
-          echo "dir_for_cache=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
+          echo "dir_for_cache=$dir_for_bash" >> $GITHUB_OUTPUT
         fi
 
     ## Don't cache `latest` version
@@ -70,4 +69,4 @@ runs:
     ## Add the Trivy binary, retrieved from cache or installed by a script, to $GITHUB_PATH
     - name: Add Trivy binary to $GITHUB_PATH
       shell: bash
-      run: echo ${{ steps.binary-dir.outputs.dir_for_cache }} >> $GITHUB_PATH
+      run: echo ${{ steps.binary-dir.outputs.dir_for_bash }} >> $GITHUB_PATH
