@@ -22,7 +22,7 @@ runs:
     - name: Binary dir
       id: binary-dir
       shell: bash
-      run: echo "dir=$(echo "${{ inputs.path }}" | sed 's|^[A-Z]:\\|/|' | sed 's|\\|/|g'')/trivy-bins" >> $GITHUB_OUTPUT
+      run: echo "dir=$(echo "${{ inputs.path }}" | sed 's|^[A-Z]:\\|/|' | sed 's|\\|/|g')/trivy-bins" >> $GITHUB_OUTPUT
 
     ## Don't cache `latest` version
     - name: Check the version for caching
