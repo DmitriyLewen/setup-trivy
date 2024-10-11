@@ -8,7 +8,7 @@ inputs:
     required: false
     default: 'latest'
   path:
-    description: 'Path in runner to install Trivy. Trivy will be installed in "trivy-dir" dir ("$HOME/.local/bin/trivy-dir/trivy" by default)'
+    description: 'Path in runner to install Trivy. Trivy will be installed in "trivy-bin" dir ("$HOME/.local/bin/trivy-bin/trivy" by default)'
     required: false
     default: '$HOME/.local/bin'
   cache:
@@ -26,10 +26,10 @@ runs:
       ## cf. https://github.com/actions/cache?tab=readme-ov-file#windows-environment-variables
       run: |
         if [ "${{ runner.os }}" == "Windows" ]; then
-          dir=$(echo "${{ inputs.path }}" | sed "s|\$HOME|~|g") 
-          echo "dir=$dir/trivy-dir" >> $GITHUB_OUTPUT
+          dir=$(echo "${{ inputs.path }}" | sed "s|\$HOME|$USERPROFILE|g") 
+          echo "dir=$dir/trivy-bin" >> $GITHUB_OUTPUT
         else
-          echo "dir=${{ inputs.path }}/trivy-dir" >> $GITHUB_OUTPUT
+          echo "dir=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
         fi
 
     ## Don't cache `latest` version
