@@ -27,7 +27,7 @@ runs:
       run: |
         echo "dir_for_bash=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
         if [ "${{ runner.os }}" == "Windows" ]; then
-          echo "dir_for_cache=$(echo "${{ inputs.path }}" | sed 's|^/c|C:/|' | sed 's|/|\\|g')\\trivy-bins" >> $GITHUB_OUTPUT
+          echo "dir_for_cache=$(echo "${{ inputs.path }}" | sed 's|^/c/|C:/|' | sed 's|/|\\|g')\\trivy-bins" >> $GITHUB_OUTPUT
         else
           echo "dir_for_cache=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
         fi
