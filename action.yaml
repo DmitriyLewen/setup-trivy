@@ -22,7 +22,15 @@ runs:
     - name: Binary dir
       id: binary-dir
       shell: bash
-      run: echo "dir=${{ inputs.path }}/trivy-dir" >> $GITHUB_OUTPUT
+      ## We should replace `$HOME` with `~` for windows runners
+      ## cf. https://github.com/actions/cache?tab=readme-ov-file#windows-environment-variables
+      run: |
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          dir=$(echo "${{ inputs.path }}" | sed "s|\$HOME|~|g") 
+          echo "dir=$dir/trivy-dir" >> $GITHUB_OUTPUT
+        else
+          echo "dir=${{ inputs.path }}/trivy-dir" >> $GITHUB_OUTPUT
+        fi
 
     ## Don't cache `latest` version
     - name: Check the version for caching
