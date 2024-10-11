@@ -27,7 +27,7 @@ runs:
       run: |
         if [ "${{ runner.os }}" == "Windows" ]; then
           dir=$(echo "${{ inputs.path }}" | sed "s|\$HOME|~|g") 
-          echo "dir=$dir/trivy-bin" >> $GITHUB_OUTPUT
+          echo "dir=$dir\trivy-bin" >> $GITHUB_OUTPUT
         else
           echo "dir=${{ inputs.path }}/trivy-bin" >> $GITHUB_OUTPUT
         fi
