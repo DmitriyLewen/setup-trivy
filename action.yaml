@@ -50,6 +50,7 @@ runs:
         sparse-checkout-cone-mode: false
         path: trivy
         fetch-depth: 1
+        github-server-url: 'https://my-ghes-server.example.com'
 
     - name: Install Trivy
       if: steps.cache.outputs.cache-hit != 'true'
