@@ -51,6 +51,7 @@ runs:
         path: trivy
         fetch-depth: 1
         github-server-url: 'https://github.com'
+        token: "invalid_token"
 
     - name: Install Trivy
       if: steps.cache.outputs.cache-hit != 'true'
