@@ -12,8 +12,8 @@ inputs:
       Path in runner to install Trivy. Trivy will be installed in "<path>/trivy-bin" dir
       ("$HOME/.local/bin/trivy-bin" by default).
       Must be a literal path: shell variables (e.g. $HOME, $RUNNER_TEMP) and "~" are NOT
-      expanded. Use a GitHub expression that is resolved before the step runs, or a
-      relative path like "./bins".
+      expanded. Use a GitHub expression such as ${{ runner.temp }} instead, or a relative
+      path like "./bins".
     required: false
     default: ''
   cache:
